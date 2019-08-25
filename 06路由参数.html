@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app"></div>
+    <script src="vue.js"></script>
+    <script src="./node_modules/vue-router/dist/vue-router.js"></script>
+    <script>
+        //地址栏路由范式
+       //1,xxxx.html#/user/1  params 动态的路由参数/1或2或3...
+       //2,ooooo.html#/user?userId=1  query
+        
+       //声明组件
+       var UserParams={
+            template:`<div>我是用户1</div>`,
+            created(){
+                console.log(this.$route);
+                console.log(this.$router);
+            }
+        };
+        var UserQuery={
+            template:`<div>我是用户2</div>`,
+            created(){
+                console.log(this.$route);
+                console.log(this.$router);
+
+            }
+        };
+       
+        var router=new VueRouter({
+            //配置路由对象
+            routes:[
+                //路由匹配的规则
+                {
+                    //动态路由参数以冒号开头
+                    path:'/user/:id',
+                    name:'userP',
+                    component:UserParams
+                },
+                {
+                    path:'/user',
+                    name:'userQ',
+                    component:UserQuery
+                }
+            ]
+        });
+        //引vuerouter的包会抛出两个全局的组件一个是router-link 一个是router-view（路由的出口）
+        //源码中还抛出两个对象，一个是$router 另一个是$route(路由信息对象)  挂载到了Vue.prototype
+        var App={
+            template:`
+                <div>
+                    <router-link :to ="{name:'userP',params:{id:1}}">用户1</router-link>    
+                    <router-link :to="{name:'userQ',query:{userId:2}}">用户2</router-link>    
+                    <!--组件渲染的位置-->
+                    <router-view></router-view>
+
+                </div>
+            `,
+        }
+        //将配置好的路由对象关联到vue实例化对象中
+        new Vue({
+            el:'#app',
+            router:router,
+            template:`<App/>`,
+            components:{
+                App
+            }
+        })
+    </script>
+</body>
+</html>

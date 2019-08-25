@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app"></div>
+    <script src="vue.js"></script>
+    <script src="./node_modules/vue-router/dist/vue-router.js"></script>
+    <script>
+        //地址栏路由范式
+       //1,xxxx.html#/user/1  params 动态的路由参数/1或2或3...
+       //2,ooooo.html#/user?userId=1  query
+        
+       //声明组件
+       var Song={
+            template:`<div>我是歌曲组件</div>`,
+            // created(){
+            //     console.log(this.$route);
+            //     console.log(this.$router);
+            // }
+        };
+        var Movie={
+            template:`<div>我是电影组件</div>`,
+            // created(){
+            //     console.log(this.$route);
+            //     console.log(this.$router);
+
+            // }
+        };
+        //home/song
+        //home/movie
+        var Home={
+            template:`
+                <div>
+                    首页内容
+                    <br/>
+                    <router-link to='/home/song'>歌曲</router-link>
+                    <router-link to='/home/movie'>电影</router-link>
+                    <router-view></router-view>
+                </div>`,
+        };
+       var Help={
+           template:`
+                <div>
+                    帮助内容
+                </div>
+           `,
+       }
+        var router=new VueRouter({
+            //配置路由对象
+            routes:[
+                //路由匹配的规则
+                {
+                    
+                    path:'/home',
+                    name:'home',
+                    component:Home,
+                    children:[
+                        {
+                            path:'song',
+                            component:Song
+                        },
+                        {
+                            path:'movie',
+                            component:Movie
+                        }
+                    ]
+                },
+                {
+                    path:'/help',
+                    name:'help',
+                    component:Help
+                }
+                
+            ]
+        });
+        
+        var App={
+            template:`
+                <div>
+                    <router-link :to ="{name:'home'}">主页</router-link>    
+                    <router-link :to ="{name:'help'}">帮助</router-link>    
+                    <!--组件渲染的位置-->
+                    <router-view></router-view>
+
+                </div>
+            `,
+        }
+        //将配置好的路由对象关联到vue实例化对象中
+        new Vue({
+            el:'#app',
+            router:router,
+            template:`<App/>`,
+            components:{
+                App
+            }
+        })
+        //两层路由，路由套路由
+    </script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+        <!-- 声明式导航 -->
+            <router-link to='/home'>首页</router-link>
+            <router-link to='/blog'>我的博客</router-link>
+            <router-link to='/login'>登录</router-link>
+            <a href="javascript:void(0);" @click='clear'>退出</a>
+            <!-- 阻止默认事件 JavaScript：void(0) -->
+            <router-view></router-view>
+
+    </div>
+    <script src="vue.js"></script>
+    <script src="./node_modules/vue-router/dist/vue-router.js"></script>
+    <script>
+        Vue.use(VueRouter);
+        var Home={
+            template:`
+                <div>
+                    我是首页
+                </div>
+            `,
+        };
+        var Blog={
+            template:`<div>我是博客</div>`,
+        };
+        var Login={
+            template:`
+                <div>
+                    <input type='text' v-model='name'/>
+                    <input type='text' v-model='pwd'/>
+                    <input type='button' value='登录' @click='login'/>
+                </div>
+            `,
+            methods:{
+                login(){
+                    localStorage.setItem('user',{name:this.name,pwd:this.pwd});
+                    //编程式导航
+                    this.$router.push({name:'blog'});
+                }
+            },
+            data(){
+                return{
+                    name:'',
+                    pwd:'',
+                }
+            }
+        }
+        var router=new VueRouter({
+            //加载页面时看不到首页面，需要点首页才能看到，  为解决这个问题需要重定向
+            routes:[
+                {
+                    path:'/',
+                    redirect:'/home'
+                },
+                {
+                    path:'/home',
+                    component:Home
+                },
+                {
+                    path:'/blog',
+                    name:'blog',
+                    component:Blog,
+                    //给未来的路由做权限控制  全局的路由守卫  来做参照条件
+                    meta:{
+                        //key:value, key随便起，如果值为true，表明用户访问组件时需要登录
+                        auth:true
+                    }
+                    
+                },
+                {
+                        path:'/login',
+                        component:Login
+                    }
+            ]
+        });
+        router.beforeEach((to,from,next)=>{
+            console.log(to);
+            console.log(from);
+            if(to.meta.auth){
+                //用户点击了博客链接 该用户未登录 需要登录判断准备跳转登录页面
+                if(localStorage.getItem('user')){
+                    //不为空，已登录  放行
+                    next();
+                }else{
+                    //用户需要登录
+                    next({
+                        path:'/login'
+                    })
+                }
+            }else{
+                //直接放行
+                next();//如果不调用next就会卡住
+            }
+        });
+        new Vue({
+            el:'#app',
+            router,
+            methods:{
+                clear(){
+                    localStorage.removeItem('user');
+                    this.$router.push({path:'/login'});
+                }
+            }
+        })
+    </script>
+</body>
+</html>
